@@ -1,2 +1,2 @@
-# chore-data
-Library for interfacing with chore data
+# pi-k8s-fitches/nandy-data
+Library for interfacing with nandy data
