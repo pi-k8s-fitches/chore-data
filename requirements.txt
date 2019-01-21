@@ -1,0 +1,7 @@
+redis==2.10.6
+PyMySQL==0.9.3
+SQLAlchemy==1.2.15
+SQLAlchemy-JSONField==0.7.1
+flask_jsontools==0.1.1-0
+graphyte==1.5
+coverage==4.5.2
