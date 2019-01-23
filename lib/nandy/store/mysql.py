@@ -1,5 +1,6 @@
 import os
 
+import pymysql
 import sqlalchemy
 import sqlalchemy.orm
 import sqlalchemy.ext.declarative
@@ -128,3 +129,107 @@ class Act(Base):
         return "<Act(name='%s',person='%s',created=%s)>" % (self.name, self.person.name, self.created)
 
 
+def create_database():
+
+    connection = pymysql.connect(host='mysql', user='root')
+
+    try:
+
+        with connection.cursor() as cursor:
+            cursor.execute("DROP DATABASE IF EXISTS nandy")
+            cursor.execute("CREATE DATABASE nandy")
+
+        connection.commit()
+
+    finally:
+
+        connection.close()
+
+
+class Sample:
+
+    def __init__(self, session):
+
+        self.session = session
+
+    def person(self, name, email=None):
+
+        if email is None:
+            email = name
+
+        person = Person(name=name, email=email)
+        self.session.add(person)
+        self.session.commit()
+
+        return person
+
+    def area(self, name, status=None, updated=7, data=None):
+
+        if status is None:
+            status = name
+
+        if data is None:
+            data = {}
+
+        area = Area(name=name, status=status, updated=updated, data=data)
+        self.session.add(area)
+        self.session.commit()
+
+        return area
+
+    def template(self, name, kind, data=None):
+
+        if data is None:
+            data = {}
+
+        template = Template(name=name, kind=kind, data=data)
+        self.session.add(template)
+        self.session.commit()
+
+        return template
+
+    def chore(self, person, name="Unit", status="started", created=7, updated=8, data=None, tasks=None):
+
+        if data is None:
+            data = {}
+
+        base = {
+            "text": "chore it",
+            "language": "en-us"
+        }
+
+        base.update(data)
+
+        if tasks is not None:
+            base["tasks"] = tasks
+
+        chore = Chore(
+            person_id=self.person(person).person_id,
+            name=name,
+            status=status,
+            created=created,
+            updated=updated,
+            data=base
+        )
+
+        self.session.add(chore)
+        self.session.commit()
+
+        return chore
+
+    def act(self, person, name="Unit", value="positive", created=7, data=None):
+
+        if data is None:
+            data = {}
+
+        act = Act(
+            person_id=self.person(person).person_id,
+            name=name,
+            value=value,
+            created=created,
+            data=data
+        )
+        self.session.add(act)
+        self.session.commit()
+
+        return act

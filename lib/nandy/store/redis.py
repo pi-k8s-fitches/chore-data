@@ -45,3 +45,33 @@ class Channel(object):
             return None
 
         return json.loads(message['data'])
+
+
+class MockRedis(object):
+
+    def __init__(self, host, port):
+
+        self.host = host
+        self.port = port
+        self.channel = None
+
+        self.data = {}
+        self.messages = []
+
+    def publish(self, channel, message):
+
+        self.channel = channel
+        self.messages.append({"data": message.encode("utf-8")})
+
+    def pubsub(self):
+
+        return self
+
+    def subscribe(self, channel):
+
+        self.channel = channel
+
+    def get_message(self):
+
+        if self.messages:
+            return self.messages.pop(0)  

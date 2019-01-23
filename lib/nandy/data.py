@@ -1,9 +1,9 @@
 import time
 import copy
 
-import nandy_redis
-import nandy_mysql
-import nandy_graphite
+import nandy.store.redis
+import nandy.store.mysql
+import nandy.store.graphite
 
 class NandyData(object):
     """
@@ -13,10 +13,10 @@ class NandyData(object):
 
     def __init__(self):
 
-        self.speech = nandy_redis.Channel("speech")
-        self.mysql = nandy_mysql.MySQL()
-        self.graphite = nandy_graphite.Graphite()
-        self.event = nandy_redis.Channel("event")
+        self.speech = nandy.store.redis.Channel("speech")
+        self.mysql = nandy.store.mysql.MySQL()
+        self.graphite = nandy.store.graphite.Graphite()
+        self.event = nandy.store.redis.Channel("event")
 
     # Person
 
@@ -25,7 +25,7 @@ class NandyData(object):
         Creates Person based on fields
         """
         
-        person = nandy_mysql.Person(**fields)
+        person = nandy.store.mysql.Person(**fields)
         self.mysql.session.add(person)
         self.mysql.session.commit()
 
@@ -40,11 +40,11 @@ class NandyData(object):
             filter = {}
 
         return self.mysql.session.query(
-            nandy_mysql.Person
+            nandy.store.mysql.Person
         ).filter_by(
             **filter
         ).order_by(
-            nandy_mysql.Person.name
+            nandy.store.mysql.Person.name
         ).all()
 
     def person_retrieve(self, person_id):
@@ -53,7 +53,7 @@ class NandyData(object):
         """
 
         return self.mysql.session.query(
-            nandy_mysql.Person
+            nandy.store.mysql.Person
         ).get(
             person_id
         )
@@ -64,7 +64,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Person
+            nandy.store.mysql.Person
         ).filter_by(
             person_id=person_id
         ).update(
@@ -79,7 +79,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Person
+            nandy.store.mysql.Person
         ).filter_by(
             person_id=person_id
         ).delete()
@@ -93,7 +93,7 @@ class NandyData(object):
         Creates Area based on fields
         """
         
-        area = nandy_mysql.Area(**fields)
+        area = nandy.store.mysql.Area(**fields)
         self.mysql.session.add(area)
         self.mysql.session.commit()
 
@@ -108,11 +108,11 @@ class NandyData(object):
             filter = {}
 
         return self.mysql.session.query(
-            nandy_mysql.Area
+            nandy.store.mysql.Area
         ).filter_by(
             **filter
         ).order_by(
-            nandy_mysql.Area.name
+            nandy.store.mysql.Area.name
         ).all()
 
     def area_retrieve(self, area_id):
@@ -121,7 +121,7 @@ class NandyData(object):
         """
 
         return self.mysql.session.query(
-            nandy_mysql.Area
+            nandy.store.mysql.Area
         ).get(
             area_id
         )
@@ -132,7 +132,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Area
+            nandy.store.mysql.Area
         ).filter_by(
             area_id=area_id
         ).update(
@@ -166,7 +166,7 @@ class NandyData(object):
     def area_delete(self, area_id):
 
         rows = self.mysql.session.query(
-            nandy_mysql.Area
+            nandy.store.mysql.Area
         ).filter_by(
             area_id=area_id
         ).delete()
@@ -180,7 +180,7 @@ class NandyData(object):
         Creates Template based on fields
         """
         
-        template = nandy_mysql.Template(**fields)
+        template = nandy.store.mysql.Template(**fields)
         self.mysql.session.add(template)
         self.mysql.session.commit()
 
@@ -195,12 +195,12 @@ class NandyData(object):
             filter = {}
 
         return self.mysql.session.query(
-            nandy_mysql.Template
+            nandy.store.mysql.Template
         ).filter_by(
             **filter
         ).order_by(
-            nandy_mysql.Template.name, 
-            nandy_mysql.Template.kind
+            nandy.store.mysql.Template.name, 
+            nandy.store.mysql.Template.kind
         ).all()
 
     def template_retrieve(self, template_id):
@@ -209,7 +209,7 @@ class NandyData(object):
         """
 
         return self.mysql.session.query(
-            nandy_mysql.Template
+            nandy.store.mysql.Template
         ).get(
             template_id
         )
@@ -220,7 +220,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Template
+            nandy.store.mysql.Template
         ).filter_by(
             template_id=template_id
         ).update(
@@ -235,7 +235,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Template
+            nandy.store.mysql.Template
         ).filter_by(
             template_id=template_id
         ).delete()
@@ -321,7 +321,7 @@ class NandyData(object):
         Sees if any reminders need to go out for all chores and people
         """
 
-        for chore in self.mysql.session.query(nandy_mysql.Chore).filter_by(status="started"):
+        for chore in self.mysql.session.query(nandy.store.mysql.Chore).filter_by(status="started"):
 
             if self.remind(chore.data):
                 self.speak_chore(f"you still have to {chore.data['text']}", chore)
@@ -355,7 +355,7 @@ class NandyData(object):
             fields["name"] = template["name"]
 
         if "person" in template and "person_id" not in fields:
-            fields["person_id"] = self.mysql.session.query(nandy_mysql.Person).filter_by(name=template["person"]).one().person_id
+            fields["person_id"] = self.mysql.session.query(nandy.store.mysql.Person).filter_by(name=template["person"]).one().person_id
 
         if "language" not in fields["data"]:
             fields["data"]["language"] = "en-us"
@@ -368,7 +368,7 @@ class NandyData(object):
         # Create and save now because we need the db 
         # person set up and other things may go wrong
 
-        chore = nandy_mysql.Chore(**fields)
+        chore = nandy.store.mysql.Chore(**fields)
         self.mysql.session.add(chore)
         self.mysql.session.commit()
 
@@ -394,11 +394,11 @@ class NandyData(object):
             filter = {}
 
         return self.mysql.session.query(
-            nandy_mysql.Chore
+            nandy.store.mysql.Chore
         ).filter_by(
             **filter
         ).order_by(
-            nandy_mysql.Chore.created.desc()
+            nandy.store.mysql.Chore.created.desc()
         ).all()
 
     def chore_retrieve(self, chore_id):
@@ -407,7 +407,7 @@ class NandyData(object):
         """
 
         return self.mysql.session.query(
-            nandy_mysql.Chore
+            nandy.store.mysql.Chore
         ).get(
             chore_id
         )
@@ -418,7 +418,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Chore
+            nandy.store.mysql.Chore
         ).filter_by(
             chore_id=chore_id
         ).update(
@@ -593,7 +593,7 @@ class NandyData(object):
         Deletes Chore based on id
         """
 
-        rows = self.mysql.session.query(nandy_mysql.Chore).filter_by(chore_id=chore_id).delete()
+        rows = self.mysql.session.query(nandy.store.mysql.Chore).filter_by(chore_id=chore_id).delete()
         self.mysql.session.commit()
         return rows
 
@@ -767,12 +767,12 @@ class NandyData(object):
             fields["name"] = template["name"]
 
         if "person" in template and "person_id" not in fields:
-            fields["person_id"] = self.mysql.session.query(nandy_mysql.Person).filter_by(name=template["person"]).one().person_id
+            fields["person_id"] = self.mysql.session.query(nandy.store.mysql.Person).filter_by(name=template["person"]).one().person_id
 
         if "value" in template and "value" not in fields:
             fields["value"] = template["value"]
 
-        act = nandy_mysql.Act(**fields)
+        act = nandy.store.mysql.Act(**fields)
 
         # Save it
 
@@ -796,11 +796,11 @@ class NandyData(object):
             filter = {}
 
         return self.mysql.session.query(
-            nandy_mysql.Act
+            nandy.store.mysql.Act
         ).filter_by(
             **filter
         ).order_by(
-            nandy_mysql.Act.created.desc()
+            nandy.store.mysql.Act.created.desc()
         ).all()
 
     def act_retrieve(self, act_id):
@@ -809,7 +809,7 @@ class NandyData(object):
         """
 
         return self.mysql.session.query(
-            nandy_mysql.Act
+            nandy.store.mysql.Act
         ).get(
             act_id
         )
@@ -820,7 +820,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Act
+            nandy.store.mysql.Act
         ).filter_by(
             act_id=act_id
         ).update(
@@ -835,7 +835,7 @@ class NandyData(object):
         """
 
         rows = self.mysql.session.query(
-            nandy_mysql.Act
+            nandy.store.mysql.Act
         ).filter_by(
             act_id=act_id
         ).delete()
