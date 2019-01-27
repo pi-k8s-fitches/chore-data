@@ -782,7 +782,7 @@ class NandyData(object):
 
         # Check to see if we should fire off a chore
 
-        if "chore" in template:
+        if "chore" in template and act.value == "negative":
             self.chore_create({"person_id": fields["person_id"]}, template["chore"])
 
         return act

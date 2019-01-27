@@ -1232,7 +1232,7 @@ class TestNandyData(unittest.TestCase):
         created = self.data.act_create(template={
             "person": "unit",
             "name": 'Unit',
-            "value": "positive",
+            "value": "negative",
             "chore": {
                 "name": "Test",
                 "text": "chore it",
@@ -1245,11 +1245,11 @@ class TestNandyData(unittest.TestCase):
         self.assertEqual(created.person_id, person.person_id)
         self.assertEqual(created.name, "Unit")
         self.assertEqual(created.created, 7)
-        self.assertEqual(created.value, "positive")
+        self.assertEqual(created.value, "negative")
         self.assertEqual(dict(created.data), {
             "person": "unit",
             "name": 'Unit',
-            "value": "positive",
+            "value": "negative",
             "chore": {
                 "name": "Test",
                 "text": "chore it",
@@ -1260,12 +1260,12 @@ class TestNandyData(unittest.TestCase):
         queried = self.data.mysql.session.query(nandy.store.mysql.Act).one()
         self.assertEqual(queried.person_id, person.person_id)
         self.assertEqual(queried.name, "Unit")
-        self.assertEqual(queried.value, "positive")
+        self.assertEqual(queried.value, "negative")
         self.assertEqual(queried.created, 7)
         self.assertEqual(dict(queried.data), {
             "person": "unit",
             "name": 'Unit',
-            "value": "positive",
+            "value": "negative",
             "chore": {
                 "name": "Test",
                 "text": "chore it",
