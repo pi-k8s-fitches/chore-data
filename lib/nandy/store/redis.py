@@ -10,10 +10,11 @@ import redis
 
 class Channel(object):
 
-    def __init__(self, channel, host=None, port=None):
+    def __init__(self, channel, host=None, port=None, prefix=None):
 
         self.channel = channel
         self.redis = redis.StrictRedis(host=host or os.environ["REDIS_HOST"], port=port or int(os.environ["REDIS_PORT"]))
+        self.prefix = prefix or "nandy"
         self.pubsub = None
 
     def publish(self, data):
@@ -21,7 +22,7 @@ class Channel(object):
         Sends a message to the channel
         """
 
-        self.redis.publish(self.channel, json.dumps(data))
+        self.redis.publish(f"{self.prefix}/{self.channel}", json.dumps(data))
 
     def subscribe(self):
         """
@@ -29,7 +30,7 @@ class Channel(object):
         """
 
         self.pubsub = self.redis.pubsub()
-        self.pubsub.subscribe(self.channel) 
+        self.pubsub.subscribe(f"{self.prefix}/{self.channel}") 
 
     def next(self):
         """
