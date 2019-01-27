@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name="nandy-data",
     version="0.1",
-    packages=["nandy"],
+    packages=["nandy", "nandy.store"],
     package_dir={'':'lib'},
     install_requires=[
         "redis==2.10.6",
