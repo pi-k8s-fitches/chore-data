@@ -7,12 +7,14 @@ services:
     - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     ports:
     - 3306:3306
-  unittest:
+  dump:
     build: .
+    command: mysql/dump.sh
     depends_on:
     - mysql
     volumes:
     - ./lib:/opt/pi-k8s/lib
+    - ./mysql:/opt/pi-k8s/mysql
     - ./test:/opt/pi-k8s/test
     environment:
     - REDIS_HOST=redis
